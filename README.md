@@ -19,55 +19,7 @@ Sơ đồ này mô tả luồng thông tin từ khi người dùng nhập câu h
 7. Các API bên ngoài (External APIs): Google Places, Directions, OpenWeatherMap.
 
 
-# Luồng hoạt động chi tiết (Flow Diagram)
-Đây là luồng dữ liệu (Data Flow) khi người dùng gửi một tin nhắn:
 
-1. [Người dùng] gõ câu hỏi (ví dụ: "thời tiết Đà Nẵng hôm nay") và nhấn "Gửi" trên [Giao diện Tkinter].
-
-2. [Giao diện Tkinter] gọi hàm handle_send_message() trong [Bộ điều khiển ứng dụng].
-
-3. [Bộ điều khiển ứng dụng] thực hiện:
-- Hiển thị tin nhắn của người dùng lên màn hình chat (gọi add_message_to_ui()).
-
-* Gọi hàm save_message():
-
-    - Cập nhật tin nhắn "user" vào biến all_conversations_data (trong RAM).
-
-    - Gọi commit_data_to_json() để ghi đè toàn bộ dữ liệu mới xuống tệp [Lưu trữ JSON].
-
-* Lấy toàn bộ lịch sử hội thoại (history) từ biến all_conversations_data.
-
-* Gọi hàm get_gemini_response(history).
-
-4. [Bộ điều khiển ứng dụng] (bên trong hàm get_gemini_response) gửi history và danh sách tools đến [Gemini API].
-
-5. [Gemini API] phân tích:
-
-* Trường hợp A (Không cần Tool): Trả về câu trả lời dạng văn bản.
-
-* Trường hợp B (Cần Tool): Nhận ra cần gọi get_weather_forecast. Nó trả về một yêu cầu FunctionCall (gọi hàm).
-
-6. [Bộ điều khiển ứng dụng] nhận phản hồi từ Gemini:
-
-* Nếu là Trường hợp A: Đi đến Bước 10.
-
-* Nếu là Trường hợp B: Nó thấy có FunctionCall. Nó gọi [Bộ thực thi Tools].
-
-7. [Bộ thực thi Tools] gọi API tương ứng, ví dụ: call_openweathermap_api("Đà Nẵng", "hôm nay").
-
-8. [Các API bên ngoài] (ví dụ: OpenWeatherMap) trả về dữ liệu thời tiết thô (ví dụ: {"temp": 25, "rain": true}) cho [Bộ thực thi Tools].
-
-9. [Bộ điều khiển ứng dụng] gửi yêu cầu lần 2 đến [Gemini API], đính kèm lịch sử cũ VÀ kết quả ({"temp": 25, "rain": true}) từ Tool.
-
-10. [Gemini API] nhận dữ liệu thô, tổng hợp nó thành câu trả lời tự nhiên (ví dụ: "Thời tiết Đà Nẵng hôm nay 25°C, trời có mưa.") và trả về cho [Bộ điều khiển ứng dụng].
-
-11. [Bộ điều khiển ứng dụng] (quay lại hàm handle_send_message) nhận được câu trả lời cuối cùng:
-
-* Hiển thị tin nhắn của bot lên màn hình (gọi add_message_to_ui()).
-
-* Gọi lại hàm save_message() để lưu tin nhắn "model" này vào [Lưu trữ JSON].
-
-(Luồng tải "Recent Chats" và "Load Chat" là luồng riêng, chỉ đọc từ [Lưu trữ JSON] và hiển thị lên [Giao diện Tkinter]).
 
 # Demo Json format
 ```json
@@ -362,3 +314,52 @@ FUNCTION handle_new_chat():
     chat_area.clear_messages()
     # Hiển thị thông báo chào mừng
 ```
+# Luồng hoạt động chi tiết (Flow Diagram)
+Đây là luồng dữ liệu (Data Flow) khi người dùng gửi một tin nhắn:
+
+1. [Người dùng] gõ câu hỏi (ví dụ: "thời tiết Đà Nẵng hôm nay") và nhấn "Gửi" trên [Giao diện Tkinter].
+
+2. [Giao diện Tkinter] gọi hàm handle_send_message() trong [Bộ điều khiển ứng dụng].
+
+3. [Bộ điều khiển ứng dụng] thực hiện:
+- Hiển thị tin nhắn của người dùng lên màn hình chat (gọi add_message_to_ui()).
+
+* Gọi hàm save_message():
+
+    - Cập nhật tin nhắn "user" vào biến all_conversations_data (trong RAM).
+
+    - Gọi commit_data_to_json() để ghi đè toàn bộ dữ liệu mới xuống tệp [Lưu trữ JSON].
+
+* Lấy toàn bộ lịch sử hội thoại (history) từ biến all_conversations_data.
+
+* Gọi hàm get_gemini_response(history).
+
+4. [Bộ điều khiển ứng dụng] (bên trong hàm get_gemini_response) gửi history và danh sách tools đến [Gemini API].
+
+5. [Gemini API] phân tích:
+
+* Trường hợp A (Không cần Tool): Trả về câu trả lời dạng văn bản.
+
+* Trường hợp B (Cần Tool): Nhận ra cần gọi get_weather_forecast. Nó trả về một yêu cầu FunctionCall (gọi hàm).
+
+6. [Bộ điều khiển ứng dụng] nhận phản hồi từ Gemini:
+
+* Nếu là Trường hợp A: Đi đến Bước 10.
+
+* Nếu là Trường hợp B: Nó thấy có FunctionCall. Nó gọi [Bộ thực thi Tools].
+
+7. [Bộ thực thi Tools] gọi API tương ứng, ví dụ: call_openweathermap_api("Đà Nẵng", "hôm nay").
+
+8. [Các API bên ngoài] (ví dụ: OpenWeatherMap) trả về dữ liệu thời tiết thô (ví dụ: {"temp": 25, "rain": true}) cho [Bộ thực thi Tools].
+
+9. [Bộ điều khiển ứng dụng] gửi yêu cầu lần 2 đến [Gemini API], đính kèm lịch sử cũ VÀ kết quả ({"temp": 25, "rain": true}) từ Tool.
+
+10. [Gemini API] nhận dữ liệu thô, tổng hợp nó thành câu trả lời tự nhiên (ví dụ: "Thời tiết Đà Nẵng hôm nay 25°C, trời có mưa.") và trả về cho [Bộ điều khiển ứng dụng].
+
+11. [Bộ điều khiển ứng dụng] (quay lại hàm handle_send_message) nhận được câu trả lời cuối cùng:
+
+* Hiển thị tin nhắn của bot lên màn hình (gọi add_message_to_ui()).
+
+* Gọi lại hàm save_message() để lưu tin nhắn "model" này vào [Lưu trữ JSON].
+
+(Luồng tải "Recent Chats" và "Load Chat" là luồng riêng, chỉ đọc từ [Lưu trữ JSON] và hiển thị lên [Giao diện Tkinter]).
