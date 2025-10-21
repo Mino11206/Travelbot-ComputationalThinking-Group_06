@@ -2,6 +2,7 @@
 The Intelligent Travel Chatbot uses the Google Gemini API to understand natural language, invoke suitable tools, and provide context-aware responses. Built with a Tkinter GUI for easy interaction, it also saves chat history, enabling seamless conversation continuity across sessions.
 
 # Demo Json format
+```json
 {
   "convo_1729523000": {
     "title": "Lên lịch trình Phú Quốc",
@@ -30,8 +31,10 @@ The Intelligent Travel Chatbot uses the Google Gemini API to understand natural 
     ]
   }
 }
+```
 
 # Demo tools which are declared for gemini
+```python
 tools = [
     {
         "function_declarations": [
@@ -110,8 +113,10 @@ tools = [
         ]
     }
 ]
+```
 
 # Demo pseudocode
+```python
 # --- BIẾN TOÀN CỤC ---
 all_conversations_data = {}  # Dictionary lớn chứa toàn bộ lịch sử 
 current_conversation_id = None # ID của chat đang mở
@@ -288,3 +293,4 @@ FUNCTION handle_new_chat():
     current_conversation_id = None
     chat_area.clear_messages()
     # Hiển thị thông báo chào mừng
+```
